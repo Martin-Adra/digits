@@ -1,12 +1,13 @@
+/* eslint-disable max-len */
 import { getServerSession } from 'next-auth';
 import { Col, Container, Row } from 'react-bootstrap';
 // import { prisma } from '@/lib/prisma';
 // import StuffItem from '@/components/StuffItem';
 import { loggedInProtectedPage } from '@/lib/page-protection';
 import authOptions from '@/lib/authOptions';
-import { Contact } from '@/lib/validationSchemas';
 import ContactCard from '@/components/ContactCard';
 import { prisma } from '@/lib/prisma';
+import { Contact } from '@prisma/client';
 
 /** Render a list of stuff for the logged in user. */
 const ListPage = async () => {
@@ -22,7 +23,9 @@ const ListPage = async () => {
   const contacts: Contact[] = await prisma.contact.findMany({
     where: { owner },
   });
-
+  const notes = await prisma.note.findMany({
+    where: { owner },
+  });
   return (
     <main>
       <Container id="list" fluid className="py-3">
@@ -33,7 +36,7 @@ const ListPage = async () => {
               <Row xs={1} md={2} lg={3} className="g-4">
                 {contacts.map((contact) => (
                   <Col key={contact.firstName + contact.lastName}>
-                    <ContactCard contact={contact} />
+                    <ContactCard contact={contact} notes={notes.filter((note) => note.contactId === contact.id)} />
                   </Col>
                 ))}
               </Row>
